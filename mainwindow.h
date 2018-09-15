@@ -31,6 +31,10 @@ private slots:                                          //слоты
 
     void on_swapButton_clicked();
 
+    void on_openButton_clicked();
+
+    void on_exportButton_clicked();
+
 private:                                                //private
     void crypt(std::vector<QString>& lang);             //функция crypt
     void decrypt(std::vector<QString>& lang);           //функция decrypt

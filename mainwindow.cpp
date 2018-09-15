@@ -2,6 +2,10 @@
 #include "ui_mainwindow.h"
 #include <vector>
 #include <QMessageBox>
+#include <QFile>
+#include <QFileDialog>
+#include <QDebug>
+#include <QTextStream>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -131,11 +135,11 @@ void MainWindow::decrypt(std::vector<QString>& lang)        //дешифровк
 void MainWindow::on_invertBox_stateChanged(int arg1)        //инверт чекбокс
 {
     QString str = "";
-    for(QChar a:ui->cryptedText->toPlainText())
+    for(QChar a:ui->cryptedText->toPlainText())             //парсинг по textEdit
         {
-        str.push_front(a);
+        str.push_front(a);                                  //в str каждый раз буква "a" записывается в начало строки(инверт)
         }
-    ui->cryptedText->setPlainText(str);
+    ui->cryptedText->setPlainText(str);                     //заменяется текст в textEdit на str
 }
 void MainWindow::on_largeBox_stateChanged(int arg1)         //заглавных букв чекбокс
 {
@@ -221,4 +225,29 @@ void MainWindow::on_swapButton_clicked()                    //поменять �
     QString str1 = ui->cryptedText->toPlainText();
     ui->cryptedText->setText(ui->originalText->toPlainText());
     ui->originalText->setText(str1);
+}
+
+void MainWindow::on_openButton_clicked()
+{
+    QFile file( QFileDialog::getOpenFileName(this,tr("Open Text"), "file:///C:/", tr("Text file (*.txt)") ));  //Создает файл с урл, которое выберет пользователь в диалоговом окне, первый параметр заголовок, второй нач. директория, третий доступные типы.
+    ui->originalText->clear();                                                                                  //очищает левый textEdit
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))                                                       //???(открыть файл для чтения и получить текст?)
+    {
+        QTextStream stream (&file);                                                                     //передает текст в файле в поток
+        while(!stream.atEnd())                                                                          //пока поток не закончился
+            ui->originalText->setText(ui->originalText->toPlainText()+stream.readLine()+"\n");          //берет строку из потока и вписывает ее в левый textEdit
+    }
+}
+
+void MainWindow::on_exportButton_clicked()
+{
+    QFile file( QFileDialog::getSaveFileName(this,tr("Save Text"), "file:///C:/untitled.txt", tr("Text file (*.txt)") ));  //Создает файл с урл, которое выберет пользователь в диалоговом окне, первый параметр заголовок, второй нач. директория, третий доступные типы.                                                                                 //очищает левый textEdit
+    file.open(QIODevice::ReadOnly | QIODevice::Text);                                                       //???(открыть файл для чтения и получить текст?)
+
+        QTextStream expStream (&file);                                                                     //передает текст в файле в поток
+        QString str = ui->cryptedText->toPlainText();
+        QTextStream origStream (&str);
+        while(!origStream.atEnd())
+            expStream<<origStream.readLine()+"\n";
+
 }
